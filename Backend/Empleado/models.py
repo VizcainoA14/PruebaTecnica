@@ -40,8 +40,8 @@ class Telefonos(models.Model):
     tipo = models.CharField(max_length=50, choices=TipoTelefonoChoices.choices)
     numero = models.CharField(max_length=50)
     indicativo = models.CharField(max_length=50)
-    empleadoId = models.ForeignKey(Empleado, on_delete=models.CASCADE)
+    empleadoId = models.ForeignKey(Empleado, related_name='telefonos', on_delete=models.CASCADE)
 
 class Emails(models.Model):
     email = models.EmailField()
-    empleadoId = models.ForeignKey(Empleado, on_delete=models.CASCADE)
+    empleadoId = models.ForeignKey(Empleado, related_name='emails', on_delete=models.CASCADE)

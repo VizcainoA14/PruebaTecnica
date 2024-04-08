@@ -1,4 +1,4 @@
-import * as React from 'react';
+
 import PropTypes from 'prop-types';
 import Box from '@mui/material/Box';
 import Collapse from '@mui/material/Collapse';
@@ -14,82 +14,60 @@ import Paper from '@mui/material/Paper';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { useAuth0 } from "@auth0/auth0-react";
+import { useEffect } from "react";
+import React, { useState } from 'react';
 
-function createData(name, calories, fat, carbs, protein, price) {
+function createData(id, emails, telefonos, nombres, apellidos, tipoIdentificacion, identificacion, fechaIngreso, salarioMensual, cargo, departamento) {
     return {
-        name,
-        calories,
-        fat,
-        carbs,
-        protein,
-        price,
-        history: [
-            {
-                date: '2020-01-05',
-                customerId: '11091700',
-                amount: 3,
-            },
-            {
-                date: '2020-01-02',
-                customerId: 'Anonymous',
-                amount: 1,
-            },
-        ],
+        id,
+        emails,
+        telefonos,
+        nombres,
+        apellidos,
+        tipoIdentificacion,
+        identificacion,
+        fechaIngreso,
+        salarioMensual,
+        cargo,
+        departamento
     };
 }
 
 function Row(props) {
     const { row } = props;
     const [open, setOpen] = React.useState(false);
+    const [accessToken, setAccessToken] = useState("");
+    const [error, setError] = useState(null);
+    const get_token = useAuth0().getIdTokenClaims();
 
-    const [products, setProducts] = React.useState([]);
 
-
-    const GetData = async () => {
+    const deleteEmployee = async (id) => { 
         try {
             let accessToken = await get_token;
             get_token.then((result) => {
                 setAccessToken(result.__raw);
             });
             const token = accessToken.__raw;
-            setLoading(true);
             const response = await fetch(
-                "https://backend-ecommerce-api-fcrd.onrender.com/SEE-SHOOPING-CART/",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ` + token,
-                    },
-                    body: JSON.stringify(data),
-                }
+                `http://127.0.0.1:8000/apiempleados/${id}/`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: token,
+                },
+            }
             );
             if (!response.ok) {
                 throw new Error("Network response was not OK");
             }
-            const json = await response.json();
-            setProducts(json.list_product);
-            setAmount(json.list_amount);
-            setTotal_buy(json.total_purchase);
-        } catch (error) {
+
+        } catch (error) {  
             setError(error);
-            setProducts([]);
-        } finally {
-            setLoading(false);
+
+        } finally { 
+            window.location.reload();
         }
-    };
-
-
-
-
-
-
-
-
-
-
-
-
+    }
 
     return (
         <React.Fragment>
@@ -104,40 +82,45 @@ function Row(props) {
                     </IconButton>
                 </TableCell>
                 <TableCell component="th" scope="row">
-                    {row.name}
+                    {row.nombres}
                 </TableCell>
-                <TableCell align="right">{row.calories}</TableCell>
-                <TableCell align="right">{row.fat}</TableCell>
-                <TableCell align="right">{row.carbs}</TableCell>
-                <TableCell align="right">{row.protein}</TableCell>
+                <TableCell align="right">{row.apellidos}</TableCell>
+                <TableCell align="right">{row.tipoIdentificacion}</TableCell>
+                <TableCell align="right">{row.identificacion}</TableCell>
+                <TableCell align="right">{row.fechaIngreso}</TableCell>
+                <TableCell align="right">{row.salarioMensual}</TableCell>
+                <TableCell align="right">{row.cargo}</TableCell>
+                <TableCell align="right">{row.departamento}</TableCell>
+                <TableCell align="right">
+                    <button>Actualizar</button>
+                </TableCell>
+                <TableCell align="right">
+                    <button onClick={() => deleteEmployee(row.id)}>Eliminar</button>
+                </TableCell>
             </TableRow>
             <TableRow>
-                <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+                <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={11}>
                     <Collapse in={open} timeout="auto" unmountOnExit>
                         <Box sx={{ margin: 1 }}>
                             <Typography variant="h6" gutterBottom component="div">
-                                History
+                                Emails y Teléfonos
                             </Typography>
                             <Table size="small" aria-label="purchases">
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>Date</TableCell>
-                                        <TableCell>Customer</TableCell>
-                                        <TableCell align="right">Amount</TableCell>
-                                        <TableCell align="right">Total price ($)</TableCell>
+                                        <TableCell>Email</TableCell>
+                                        <TableCell>Tipo de Teléfono</TableCell>
+                                        <TableCell>Número de Teléfono</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {row.history.map((historyRow) => (
-                                        <TableRow key={historyRow.date}>
+                                    {row.emails.map((email, index) => (
+                                        <TableRow key={email.id}>
                                             <TableCell component="th" scope="row">
-                                                {historyRow.date}
+                                                {email.email}
                                             </TableCell>
-                                            <TableCell>{historyRow.customerId}</TableCell>
-                                            <TableCell align="right">{historyRow.amount}</TableCell>
-                                            <TableCell align="right">
-                                                {Math.round(historyRow.amount * row.price * 100) / 100}
-                                            </TableCell>
+                                            <TableCell>{row.telefonos[index].tipo}</TableCell>
+                                            <TableCell>{row.telefonos[index].numero}</TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>
@@ -149,6 +132,7 @@ function Row(props) {
         </React.Fragment>
     );
 }
+
 
 Row.propTypes = {
     row: PropTypes.shape({
@@ -177,22 +161,68 @@ const rows = [
 ];
 
 export default function CollapsibleTable() {
+
+    const [Employees, setEmployees] = React.useState([]);
+    const [loading, setLoading] = React.useState(true);
+    const [accessToken, setAccessToken] = useState("");
+    const [error, setError] = useState(null);
+    const get_token = useAuth0().getIdTokenClaims();
+
+    useEffect(() => {
+        GetData();
+    }, []);
+
+    const GetData = async () => {
+        try {
+            let accessToken = await get_token;
+            get_token.then((result) => {
+                setAccessToken(result.__raw);
+            });
+            const token = accessToken.__raw;
+            setLoading(true);
+            const response = await fetch(
+                "http://127.0.0.1:8000/apiempleados/",
+                {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: token,
+                    },
+                }
+            );
+            if (!response.ok) {
+                throw new Error("Network response was not OK");
+            }
+            const json = await response.json();
+            setEmployees(json);
+
+        } catch (error) {
+            setError(error);
+
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <TableContainer component={Paper}>
             <Table aria-label="collapsible table">
                 <TableHead>
                     <TableRow>
                         <TableCell />
-                        <TableCell>Dessert (100g serving)</TableCell>
-                        <TableCell align="right">Calories</TableCell>
-                        <TableCell align="right">Fat&nbsp;(g)</TableCell>
-                        <TableCell align="right">Carbs&nbsp;(g)</TableCell>
-                        <TableCell align="right">Protein&nbsp;(g)</TableCell>
+                        <TableCell>Nombres</TableCell>
+                        <TableCell align="right">Apellidos</TableCell>
+                        <TableCell align="right">Tipo de Identificación</TableCell>
+                        <TableCell align="right">Identificación</TableCell>
+                        <TableCell align="right">Fecha de Ingreso</TableCell>
+                        <TableCell align="right">Salario Mensual</TableCell>
+                        <TableCell align="right">Cargo</TableCell>
+                        <TableCell align="right">Departamento</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {rows.map((row) => (
-                        <Row key={row.name} row={row} />
+                    {Employees.map((row) => (
+                        <Row key={row.id} row={row} />
                     ))}
                 </TableBody>
             </Table>

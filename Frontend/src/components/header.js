@@ -13,9 +13,11 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 import { useAuth0 } from "@auth0/auth0-react";
+import PopupForm from "../components/Add";
+import { useState } from 'react';
 
 
-const pages = ['Products', 'Pricing', 'Blog'];
+const pages = ['Añadir Empelado'];
 const settings = ['Logout'];
 
 export function ResponsiveAppBar() {
@@ -23,6 +25,9 @@ export function ResponsiveAppBar() {
     const [anchorElUser, setAnchorElUser] = React.useState(null);
     const { isAuthenticated, user, loginWithRedirect } = useAuth0();
     const { logout } = useAuth0();
+    const [isPopupOpen, setPopupOpen] = React.useState(false);
+
+    
 
 
     const handleOpenNavMenu = (event) => {
@@ -40,8 +45,15 @@ export function ResponsiveAppBar() {
         setAnchorElUser(null);
     };
 
+    const handleAddEmployee = () => {
+        setPopupOpen(true);
+    };
+
+
     return (
+        
         <AppBar position="static">
+                        {isPopupOpen && <PopupForm />}
             <Container maxWidth="xl">
                 <Toolbar disableGutters sx={{ height: '10vh' }}>
                     <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
@@ -119,15 +131,9 @@ export function ResponsiveAppBar() {
                         LOGO
                     </Typography>
                     <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-                        {pages.map((page) => (
-                            <Button
-                                key={page}
-                                onClick={handleCloseNavMenu}
-                                sx={{ my: 2, color: 'white', display: 'block' }}
-                            >
-                                {page}
+                            <Button>
+                                <PopupForm />
                             </Button>
-                        ))}
                     </Box>
 
                     <Box sx={{ flexGrow: 0 }}>
