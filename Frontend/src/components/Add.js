@@ -119,26 +119,26 @@ export const PopupForm = () => {
 
         const requestBody2 = {
             email: email1,
-            empleadoId: id+1,
+            empleadoId: id,
         };
 
         const requestBody3 = {
             email: email2,
-            empleadoId: id+1,
+            empleadoId: id,
         };
 
         const requestBody4 = {
             tipo: tipo1,
             numero: numero1,
             indicativo: indicativo1,
-            empleadoId: id+1,
+            empleadoId: id,
         };
         
         const requestBody5 = {
             tipo: tipo2,
             numero: numero2,
             indicativo: indicativo2,
-            empleadoId: id+1,
+            empleadoId: id,
 
         };
 
@@ -236,8 +236,7 @@ export const PopupForm = () => {
                 });
         };
 
-        window.location.reload();
-        
+
     };
 
     const togglePopUp = () => {
